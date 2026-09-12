@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const CHROMIUM_PATH = '/home/gem/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome'
+const CHROMIUM_PATH = process.env.PLAYWRIGHT_CHROMIUM_PATH || '/opt/chromium.org/chromium/chrome'
 
 export default defineConfig({
   testDir: './e2e',
@@ -14,12 +14,11 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:5173',
     trace: 'retain-on-failure',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    screenshot: 'on',
     headless: true,
     launchOptions: {
       executablePath: CHROMIUM_PATH,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
     },
   },
   projects: [

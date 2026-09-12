@@ -13,6 +13,7 @@ import { ServiceSheet } from '@/components/ServiceSheet'
 import { TopBar } from '@/components/TopBar'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { useDarkMode } from '@/hooks/useDarkMode'
 import { useElderlyMode } from '@/hooks/useElderlyMode'
 import { orderReducer, initialState } from '@/state/orderReducer'
 import { products } from '@/data/menu'
@@ -37,6 +38,7 @@ export default function App() {
   const { t, i18n } = useTranslation()
   const [state, dispatch] = useReducer(orderReducer, initialState, createPreviewState)
   const { enabled: elderly, toggle: toggleElderly } = useElderlyMode()
+  const { enabled: dark, toggle: toggleDark } = useDarkMode()
   const [serviceOpen, setServiceOpen] = useState(false)
   const [consoleOpen, setConsoleOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
@@ -67,6 +69,10 @@ export default function App() {
     toggleElderly()
     dispatch({ type: 'SET_MESSAGE', message: elderly ? '已切换为常规模式' : '已切换为老人模式' })
   }
+  const handleToggleDark = () => {
+    toggleDark()
+    dispatch({ type: 'SET_MESSAGE', message: dark ? t('common.dark_mode_off') : t('common.dark_mode_on') })
+  }
 
   if (state.view === 'bind' || !state.table) {
     return <BindTable onBind={(table) => dispatch({ type: 'BIND_TABLE', table })} />
@@ -84,8 +90,10 @@ export default function App() {
         serviceCount={waitingServices}
         language={i18n.language}
         elderly={elderly}
+        dark={dark}
         onToggleLanguage={toggleLanguage}
         onToggleElderly={handleToggleElderly}
+        onToggleDark={handleToggleDark}
         onView={changeView}
         onService={() => setServiceOpen(true)}
         onConsole={() => setConsoleOpen(true)}
