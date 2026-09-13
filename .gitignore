@@ -4,3 +4,8 @@ dist/
 *.log
 .vefaas/
 *.tsbuildinfo
+
+# E2E test artifacts
+test-results/
+playwright-report/
+e2e-report/
