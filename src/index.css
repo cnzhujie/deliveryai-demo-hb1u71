@@ -4,11 +4,28 @@
 @tailwind utilities;
 
 :root { color: #211f1c; background: #fbf5ea; font-synthesis: none; }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { scroll-behavior: smooth; }
-body { margin: 0; min-width: 320px; min-height: 100vh; background: #fbf5ea; }
-button, input { font: inherit; }
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #fbf5ea;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+button, input, select, textarea { font: inherit; }
+input, select, textarea { font-size: 16px; } /* 防止iOS输入框聚焦放大 */
 ::selection { background: #ffddd8; color: #a9231a; }
+
+/* 滚动优化 */
+.scroll-container {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  contain: layout paint;
+}
 
 /* 老人模式全局基础：放大字号约 1.25 倍 */
 .elderly { font-size: 125%; }
@@ -21,22 +38,113 @@ button, input { font: inherit; }
 
 /* 老人模式：主要交互元素触控区域 ≥ 44px */
 .elderly button { min-height: 2.2rem; }
+.elderly .size-icon { min-height: 3rem; min-width: 3rem; }
+
+/* 常规模式：确保触控热区最小44x44px */
+button, a, [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+.size-icon {
+  min-height: 44px;
+  min-width: 44px;
+}
 
 /* 界面状态切换平滑过渡 */
 html { transition: background-color 250ms ease, color 250ms ease, font-size 250ms ease; }
 html * {
-  transition-property: background-color, border-color, color, fill, stroke, font-size;
+  transition-property: background-color, border-color, color, fill, stroke, font-size, opacity, transform;
   transition-duration: 250ms;
   transition-timing-function: ease;
 }
 
+/* 动画优化：只使用transform和opacity */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-rise {
+  animation: rise 0.35s ease-out forwards;
+  will-change: transform, opacity;
+}
+
 @layer utilities {
+  /* 安全区适配 */
+  .safe-top { padding-top: max(0.75rem, env(safe-area-inset-top)); }
   .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+  .safe-left { padding-left: max(0px, env(safe-area-inset-left)); }
+  .safe-right { padding-right: max(0px, env(safe-area-inset-right)); }
+
+  /* Sticky header顶部安全区 */
+  .sticky-safe-top {
+    top: env(safe-area-inset-top);
+    padding-top: env(safe-area-inset-top);
+  }
+
   .paper-noise {
     background-image: radial-gradient(rgba(170, 110, 60, .08) .7px, transparent .7px);
     background-size: 12px 12px;
   }
   .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { scrollbar-width: none; }
+
+  /* 触控区域扩展 */
+  .touch-target {
+    position: relative;
+  }
+  .touch-target::after {
+    content: '';
+    position: absolute;
+    inset: -10px;
+  }
+
+  /* 图片淡入 */
+  .img-fadein {
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+  .img-fadein.loaded {
+    opacity: 1;
+  }
+
+  /* 键盘弹起时隐藏底部导航 */
+  .keyboard-open .hide-on-keyboard {
+    display: none !important;
+  }
+}
+
+/* backdrop-filter 降级处理 */
+@supports not (backdrop-filter: blur(8px)) {
+  .backdrop-blur-xl,
+  .backdrop-blur-lg,
+  .backdrop-blur-md,
+  .backdrop-blur-sm {
+    background-color: rgba(251, 245, 234, 0.95) !important;
+  }
+  .dark .backdrop-blur-xl,
+  .dark .backdrop-blur-lg,
+  .dark .backdrop-blur-md,
+  .dark .backdrop-blur-sm {
+    background-color: rgba(26, 24, 21, 0.95) !important;
+  }
+  .bg-charcoal-900\/40.backdrop-blur-sm {
+    background-color: rgba(33, 31, 28, 0.7) !important;
+  }
+}
+
+/* 低性能设备动画降级 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .backdrop-blur-xl,
+  .backdrop-blur-lg,
+  .backdrop-blur-md,
+  .backdrop-blur-sm {
+    backdrop-filter: none !important;
+  }
 }
 
 /* ============================================================
@@ -83,4 +191,9 @@ html * {
 /* --- 背景装饰覆盖 --- */
 .dark .paper-noise {
   background-image: radial-gradient(rgba(255, 240, 220, .03) .7px, transparent .7px);
+}
+
+/* 横屏适配：确保不横向溢出 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .max-h-screen { max-height: 85vh; }
 }

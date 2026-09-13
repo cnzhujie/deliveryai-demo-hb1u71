@@ -2,10 +2,14 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#fbf5ea" />
     <meta name="description" content="沸点火锅点单与门店履约概念演示，非官方产品" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>沸点 · 火锅点单概念演示</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <script>
       (function () {
         // 同步设置初始语言到 html lang 属性
@@ -15,8 +19,23 @@
         } catch (e) {
           // localStorage 不可用时保持默认中文
         }
+        // 全局错误兜底，防止白屏
+        window.addEventListener('error', function(e) {
+          console.error('Global error:', e.error);
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+          console.error('Unhandled rejection:', e.reason);
+        });
       })();
     </script>
+    <style>
+      /* 首屏关键样式，防止白屏 */
+      body { margin: 0; background: #fbf5ea; }
+      #root { min-height: 100vh; }
+      @media (prefers-color-scheme: dark) {
+        body { background: #1a1815; }
+      }
+    </style>
   </head>
   <body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body>
 </html>
